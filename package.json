@@ -15,6 +15,8 @@
   "author": "Simon <13917107469@163.com> (https://github.com/Simon-He95)",
   "license": "MIT",
   "devDependencies": {
+    "@vue/compiler-dom": "^3.2.34",
+    "@vue/compiler-sfc": "^3.2.34",
     "@vue/reactivity": "^3.2.34",
     "@vue/runtime-core": "^3.2.34",
     "@vue/runtime-dom": "^3.2.34",
