@@ -29,15 +29,28 @@ app.use(async ctx => {
     const content = fs.readFileSync(p, 'utf-8')
     ctx.type = 'application/javascript'
     ctx.body = rewriteImport(content)
-  } else if (url.indexOf('.vue')) {
+  } else if (url.indexOf('.vue') !== -1) {
     // 支持SFC组件 单文件组件
     // 1. *.vue => template模板  （compiler-sfc）
     const p = path.resolve(__dirname, url.split('?')[0].slice(1))
     const content = fs.readFileSync(p, 'utf-8')
     const { descriptor } = compilerSfc.parse(content)
+
+    const modules = 'v-data-110'
+    let result = ''
+    if (descriptor.styles) {
+      result = `
+      const css = "${descriptor.styles[0].content.replace(/ {\n/g, `[${modules}] {`).replace(/\n/g, '')}"
+      let link = document.createElement('style')
+      link.setAttribute('type', 'text/css')
+      document.head.appendChild(link)
+      link.innerHTML = css
+      `
+    }
     if (!query.type) {
       ctx.type = "application/javascript"
       ctx.body = `
+      ${result}
       ${rewriteImport(
         descriptor.script.content.replace('export default ', 'const __script =')
       )}
@@ -48,10 +61,42 @@ app.use(async ctx => {
     } else {
       // 2. template模板 => render函数 （compiler-dom）
       const template = descriptor.template.content
-      const render = compilerDom.compile(template, { mode: 'module' })
+      const render = compilerDom.compile(template, {
+        mode: 'module', nodeTransforms: [
+          (node, content) => {
+            if (node.type === 1) {
+              node.props && node.props.push({
+                name: modules,
+                type: 6,
+                loc: {
+                  start: {},
+                  end: {},
+                  source: modules
+                },
+              })
+
+            }
+          }
+        ]
+      })
       ctx.type = 'application/javascript'
       ctx.body = rewriteImport(render.code)
     }
+  } else if (url.endsWith('.css')) {
+    // css 转为 js
+    // 利用js 添加一个style标签
+    const p = path.resolve(__dirname, url.slice(1))
+    const file = fs.readFileSync(p, 'utf-8')
+    const content = `
+    const css = "${file.replace(/\n/g, '')}"
+    let link = document.createElement('style')
+    link.setAttribute('type', 'text/css')
+    document.head.appendChild(link)
+    link.innerHTML = css
+    export default css
+    `
+    ctx.type = 'application/javascript'
+    ctx.body = content
   }
 })
 

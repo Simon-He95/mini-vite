@@ -12,9 +12,13 @@ export default {
 </script>
 
 <template>
-  <div>hi</div>
+  <div class="hi">hi</div>
   count: {{ count }}
   <button @click="count++">+1</button>
 </template>
 
-<style scoped></style>
+<style scoped>
+.hi {
+  color: yellow;
+}
+</style>
