@@ -14,7 +14,7 @@ app.use(async ctx => {
     const content = fs.readFileSync('./index.html', 'utf-8').replace('<script', '<script>window.process ={env:{NODE_ENV:"development"}};</script><script')
 
     ctx.body = content
-  } else if (url.endsWith('.js')) {
+  } else if (url.endsWith('.js') || url.endsWith('.ts')) {
     // /src/main.js => xxxx/src/main.js
     ctx.type = 'application/javascript'
     const content = rewriteImport(fs.readFileSync(path.resolve(__dirname, url.slice(1)), 'utf-8'))

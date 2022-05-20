@@ -4,7 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "esno ./server.ts"
   },
   "files": [
     "src"
@@ -21,6 +21,7 @@
     "@vue/runtime-core": "^3.2.34",
     "@vue/runtime-dom": "^3.2.34",
     "@vue/shared": "^3.2.34",
+    "esno": "^0.16.3",
     "koa": "^2.13.4",
     "vue": "^3.2.33"
   }
